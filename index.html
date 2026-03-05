@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ẩm Thực Việt Nam — Vietnamese Cuisine</title>
+  <meta name="description" content="Khám phá ẩm thực Việt Nam: món ngon, công thức nấu ăn, mẹo bếp núc và văn hoá ẩm thực." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#0f0f10; --panel:#111214; --text:#e9eaee; --muted:#b8bcc7;
+      --brand:#f97316; --brand-2:#fb923c; --ring:rgba(249,115,22,.35);
+      --ok:#22c55e; --warn:#f59e0b; --err:#ef4444;
+      --surface:#141519; --surface-2:#1b1d21; --border:#2a2c31;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0}
+    body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial; background:var(--bg); color:var(--text);}
+    a{color:inherit; text-decoration:none}
+    img{max-width:100%; display:block}
+    .container{width:min(1200px,92vw); margin:0 auto}
+
+    .chip{display:inline-flex;align-items:center;gap:.5rem;padding:.35rem .7rem;border:1px solid var(--border);border-radius:999px;background:var(--surface);color:var(--text);font-size:.9rem;cursor:pointer;user-select:none}
+    .chip[data-active="true"]{border-color:var(--brand); background:#1b140f; color:#ffd9bf}
+    .btn{display:inline-flex;align-items:center;gap:.5rem;padding:.7rem 1rem;border:1px solid var(--border);border-radius:.8rem;background:var(--surface);color:var(--text);font-weight:600;cursor:pointer}
+    .btn.primary{background:linear-gradient(135deg,var(--brand),var(--brand-2)); border-color:transparent; color:#111}
+    .btn.ghost{background:transparent}
+    .btn:focus{outline:2px solid var(--ring); outline-offset:2px}
+    .input{width:100%;padding:.9rem 1rem;border-radius:.8rem;border:1px solid var(--border);background:var(--surface);color:var(--text)}
+    .muted{color:var(--muted)}
+
+    .header{position:sticky;top:0;z-index:50;background:rgba(15,15,16,.72);backdrop-filter:saturate(1.2) blur(10px); border-bottom:1px solid var(--border)}
+    .nav{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.8rem 0}
+    .brand{display:flex;align-items:center;gap:.8rem}
+    .brand img{width:40px;height:40px;border-radius:10px}
+    .brand h1{font-size:1.05rem;margin:0;font-weight:800;letter-spacing:.4px}
+    .menu{display:flex;gap:.8rem;flex-wrap:wrap}
+    .menu a{padding:.55rem .8rem;border-radius:.6rem;border:1px solid transparent}
+    .menu a.active,.menu a:hover{border-color:var(--border);background:var(--surface)}
+
+    .hero{position:relative;min-height:65vh;display:grid;place-items:center;overflow:hidden;border-bottom:1px solid var(--border)}
+    .hero video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:saturate(1.05) brightness(.7)}
+    .overlay{position:absolute;inset:0;background:radial-gradient(70% 50% at 50% 50%,rgba(0,0,0,.0),rgba(0,0,0,.55) 60%, rgba(0,0,0,.85) 100%)}
+    .hero-content{position:relative;z-index:1;text-align:center;padding:4rem 0}
+    .hero h2{font-size:clamp(1.6rem,3.2vw,3rem);margin:0 0 1rem; color: #fff !important;}
+    .hero p{margin:0 auto 1.6rem;max-width:800px;color:var(--muted); color: #fff !important; opacity: .92;}
+    .hero .actions{display:flex;gap:.8rem;justify-content:center;flex-wrap:wrap}
+
+    .section{padding:64px 0;border-top:1px solid var(--border)}
+    .filters{display:grid;gap:1rem;grid-template-columns:1.4fr .6fr}
+    .chips{display:flex;gap:.6rem;flex-wrap:wrap}
+
+    .grid{display:grid;grid-template-columns:repeat(4,1fr); gap:18px;margin-top:1.2rem}
+    .card{position:relative;border:1px solid var(--border);border-radius:14px;overflow:hidden;background:linear-gradient(180deg,var(--panel),#0f0f10)}
+    .card .thumb{position:relative;height:180px;overflow:hidden}
+    .card .thumb img{width:100%;height:100%;object-fit:cover;transition:transform .35s ease}
+    .card:hover .thumb img{transform:scale(1.05)}
+    .favorite{position:absolute;top:10px;right:10px;background:color-mix(in srgb,var(--panel) 85%, transparent);border:1px solid var(--border);border-radius:999px;padding:.45rem .55rem;display:flex;align-items:center;gap:.35rem;font-size:.85rem;color:var(--text)}
+    .favorite[data-on="true"]{background:#20110c;border-color:#5a2c12;color:#ffc89d}
+    .badge{position:absolute;left:10px;bottom:10px;background:color-mix(in srgb,var(--panel) 85%, transparent);padding:.32rem .5rem;border-radius:999px;border:1px solid var(--border);font-size:.8rem;color:var(--text)}
+    .card .body{padding:12px;color:var(--text)}
+    .title{display:flex;align-items:center;justify-content:space-between;gap:.6rem}
+    .title h3{margin:0;font-size:1rem}
+    .meta{display:flex;gap:.5rem;flex-wrap:wrap;color:var(--muted);font-size:.85rem;margin-top:6px}
+    .tags{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:8px}
+    .tag{font-size:.75rem;border:1px solid var(--border);border-radius:999px;padding:.2rem .5rem;color:var(--text)}
+    .card .foot{display:flex;gap:.5rem;margin-top:10px}
+    .card .foot .btn{flex:1}
+
+    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55);z-index:60}
+    .modal[open]{display:flex}
+    .dialog{width:min(880px,92vw);max-height:82vh;border-radius:16px;border:1px solid var(--border);background:var(--panel);overflow:hidden;display:grid;grid-template-columns:320px 1fr}
+    .dialog .cover{background:#000;display:flex;align-items:center;justify-content:center;height:100%}
+    .dialog .cover img{width:100%;height:100%;object-fit:contain}
+    /* ✅ Scroll cho phần nội dung công thức */
+    .dialog .content{padding:16px 18px 18px 18px;overflow-y:auto;max-height:80vh;background:var(--panel);color:var(--text)}
+    .dialog h3{margin:0 0 6px;color:var(--text)}
+    .dialog .row{display:flex;gap:6px;flex-wrap:wrap;color:var(--muted);font-size:.92rem}
+    .list{display:grid;grid-template-columns:1fr;gap:8px;margin:10px 0 16px}
+    .list li{background:var(--surface-2);border:1px solid var(--border);padding:8px 10px;border-radius:8px;color:var(--text)}
+    .steps{counter-reset:step}
+    .steps li{position:relative;padding-left:40px}
+    .steps li::before{counter-increment:step;content:counter(step); position:absolute;left:8px;top:8px;width:22px;height:22px;border-radius:999px;display:grid;place-items:center;background:linear-gradient(135deg,var(--brand),var(--brand-2)); color:#111;font-weight:800}
+    .close{position:absolute;top:10px;right:10px}
+    /* ✅ Dòng credit trong modal */
+    .credit{font-size:.85rem;color:var(--muted);margin:2px 0 10px;font-style:italic;}
+
+    .cards{display:grid;grid-template-columns:repeat(3,1fr); gap:16px}
+    .panel{border:1px solid var(--border);border-radius:14px;padding:16px;background:var(--panel);color:var(--text)}
+
+    footer{border-top:1px solid var(--border);padding:26px 0;color:var(--muted)}
+    .row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    .between{justify-content:space-between}
+
+    @media (max-width: 1024px){
+      .grid{grid-template-columns:repeat(3,1fr)}
+      .dialog{grid-template-columns:1fr}
+      .dialog .cover{height:min(42vh,320px)}
+      .filters{grid-template-columns:1fr}
+    }
+    @media (max-width: 720px){
+      .grid{grid-template-columns:repeat(2,1fr)}
+      .cards{grid-template-columns:1fr}
+      .hero{min-height:56vh}
+      .dialog .cover{height:min(45vh,280px)}
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="container nav">
+      <a class="brand" href="#home" aria-label="Trang chủ Ẩm Thực Việt Nam">
+        <img alt="Logo" src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=1200&auto=format&fit=crop"/>
+        <h1>Ẩm Thực Việt Nam</h1>
+      </a>
+      <nav class="menu" aria-label="Điều hướng chính">
+        <a href="#monngon" class="active">Món ngon</a>
+        <a href="#congthuc">Công thức</a>
+        <a href="#blog">Blog</a>
+        <a href="#lienhe">Liên hệ</a>
+      </nav>
+      <div class="row">
+        <button class="btn ghost" id="themeBtn" aria-label="Đổi giao diện">🌙</button>
+        <button class="btn primary" onclick="document.querySelector('#newsletter').scrollIntoView({behavior:'smooth'})">Nhận công thức</button>
+      </div>
+    </div>
+  </header>
+
+  <section id="home" class="hero" aria-label="Giới thiệu">
+    <video autoplay muted loop playsinline poster="https://images.unsplash.com/photo-1498654896293-37aacf113fd9?q=80&w=1600&auto=format&fit=crop">
+      <source src="https://cdn.coverr.co/videos/coverr-cooking-in-a-frying-pan-5645/1080p.mp4" type="video/mp4" />
+    </video>
+    <div class="overlay"></div>
+    <div class="hero-content container">
+      <h2>Khám phá hương vị Việt • Tươi • Ấm • Đậm đà</h2>
+      <p>Từ phở Hà Nội, bún bò Huế đến bánh xèo miền Nam — công thức chuẩn vị, dễ làm, kèm mẹo bếp & văn hoá món ăn.</p>
+      <div class="actions">
+        <a href="#monngon" class="btn primary">Xem món nổi bật</a>
+        <a href="#congthuc" class="btn">Cách nấu phổ biến</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="monngon" class="section" aria-label="Món ngon nổi bật">
+    <div class="container">
+      <div class="row between" style="margin-bottom:12px">
+        <h3 style="margin:0">Món nổi bật hôm nay</h3>
+        <span class="muted">Cập nhật mỗi tuần • đề xuất theo mùa</span>
+      </div>
+      <div class="filters" style="margin-bottom:10px">
+        <div class="row" style="gap:10px;align-items:center">
+          <input id="search" class="input" placeholder="Tìm kiếm: phở, bánh xèo, bún chả…" aria-label="Ô tìm kiếm món ăn" />
+          <button class="btn" onclick="clearSearch()">Xoá</button>
+        </div>
+        <div class="chips" role="listbox" aria-label="Bộ lọc">
+          <span class="chip" data-filter="all" data-active="true">Tất cả</span>
+          <span class="chip" data-filter="noodle">Món sợi</span>
+          <span class="chip" data-filter="soup">Món nước</span>
+          <span class="chip" data-filter="street">Ăn vặt/đường phố</span>
+          <span class="chip" data-filter="rice">Cơm/đĩa</span>
+          <span class="chip" data-filter="roll">Cuốn</span>
+          <span class="chip" data-filter="quick">Nhanh</span>
+        </div>
+      </div>
+      <div id="grid" class="grid" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <section id="congthuc" class="section" aria-label="Công thức phổ biến">
+    <div class="container">
+      <div class="row between" style="margin-bottom:12px">
+        <h3 style="margin:0">Công thức phổ biến</h3>
+        <span class="muted">Dễ làm tại nhà • kèm mẹo bếp</span>
+      </div>
+      <div class="cards">
+        <div class="panel">
+          <h4>Phở bò Hà Nội (cơ bản)</h4>
+          <p class="muted">Nước dùng trong từ xương ống + nạm, nướng gừng/ hành, sao mùi hồi quế, chan sợi phở mềm.</p>
+          <ul>
+            <li>Hầm xương 3–4h lửa nhỏ, luôn hớt bọt.</li>
+            <li>Nướng gừng/ hành đập dập; sao quế, hồi, thảo quả; cho túi thơm vào.</li>
+            <li>Nêm muối, nước mắm, đường phèn. Trụng phở, thái thịt mỏng.</li>
+          </ul>
+        </div>
+        <div class="panel">
+          <h4>Bánh xèo giòn rụm</h4>
+          <p class="muted">Bột loãng + chảo nóng + dầu mỏng = vỏ siêu giòn. Ăn kèm rau sống, nước mắm chua ngọt.</p>
+          <ul>
+            <li>Pha bột gạo, nước cốt dừa, bột nghệ; nghỉ 30'.</li>
+            <li>Xào tôm thịt; đổ bột phủ mỏng; thêm giá; rưới ít dầu viền chảo.</li>
+            <li>Vàng giòn, gập đôi; chấm nước mắm tỏi ớt.</li>
+          </ul>
+        </div>
+        <div class="panel">
+          <h4>Gỏi cuốn thanh mát</h4>
+          <p class="muted">Bánh tráng mềm, tôm thịt, bún, rau thơm; chấm tương đậu nấu béo bùi.</p>
+          <ul>
+            <li>Luộc tôm, thịt; cắt lát.</li>
+            <li>Nhúng bánh tráng nhanh; xếp rau-bún-tôm-thịt; cuốn chặt tay.</li>
+            <li>Sốt tương: tương đậu + nước lọc + đường + tỏi ớt; rắc đậu phộng.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="blog" class="section" aria-label="Blog & câu chuyện">
+    <div class="container">
+      <div class="row between" style="margin-bottom:12px">
+        <h3 style="margin:0">Chuyện bếp & văn hoá</h3>
+        <span class="muted">Góc nhìn & mẹo nhỏ</span>
+      </div>
+      <div class="cards">
+        <article class="panel"><h4>Lịch sử bánh mì Việt Nam</h4><p class="muted">Từ baguette Pháp đến ổ bánh vỏ giòn ruột rỗng, hoà quyện pate – đồ chua – rau thơm.</p></article>
+        <article class="panel"><h4>Mắm ruốc trong bún bò Huế</h4><p class="muted">Linh hồn tạo bản sắc; bí quyết là lọc lấy phần nước trong để giữ độ thanh.</p></article>
+        <article class="panel"><h4>Rau sống – "linh kiện" của món Việt</h4><p class="muted">Hàng chục loại rau thơm tạo chiều sâu; rửa – để ráo – phối đúng món.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section id="lienhe" class="section" aria-label="Liên hệ & nhận công thức">
+    <div class="container">
+      <div class="cards">
+        <div id="newsletter" class="panel">
+          <h4>Nhận công thức mỗi tuần</h4>
+          <p class="muted">Món mới, mẹo bếp, thực đơn theo mùa (miễn phí).</p>
+          <div class="row" style="margin-top:8px">
+            <input class="input" id="email" placeholder="Email của bạn" aria-label="Nhập email"/>
+            <button class="btn primary" onclick="subscribe()">Đăng ký</button>
+          </div>
+          <p id="subMsg" class="muted" style="margin-top:8px"></p>
+        </div>
+        <div class="panel">
+          <h4>Gợi ý món theo tủ lạnh 🤖</h4>
+          <p class="muted">Gõ nguyên liệu bạn đang có, chúng tôi sẽ gợi ý món phù hợp.</p>
+          <div class="row" style="margin-top:8px">
+            <input class="input" id="ing" placeholder="Ví dụ: bò, sả, bún, rau sống" aria-label="Nhập nguyên liệu"/>
+            <button class="btn" onclick="suggest()">Gợi ý</button>
+          </div>
+          <p id="aiMsg" class="muted" style="margin-top:8px"></p>
+        </div>
+        <div class="panel">
+          <h4>Liên hệ</h4>
+          <p class="muted">Hợp tác nội dung/ hình ảnh/ lớp dạy nấu ăn.</p>
+          <div class="row" style="margin-top:8px">
+            <input class="input" placeholder="Tên"/>
+            <input class="input" placeholder="Email"/>
+          </div>
+          <textarea class="input" style="margin-top:8px;height:110px" placeholder="Lời nhắn"></textarea>
+          <button class="btn" style="margin-top:8px">Gửi</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container row between">
+      <p>© 2025 Ẩm Thực Việt Nam</p>
+      <p>@ Được thiết kế bởi: Nguyễn Phương Thảo</p>
+      <div class="row muted">
+        <a href="#" style="margin-right:10px">Facebook</a>
+        <a href="#" style="margin-right:10px">YouTube</a>
+        <a href="#">Instagram</a>
+      </div>
+    </div>
+  </footer>
+
+  <dialog class="modal" id="modal">
+    <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+      <div class="cover"><img id="mImg" alt="Ảnh món" src=""/></div>
+      <div class="content">
+        <button class="btn ghost close" onclick="closeModal()" aria-label="Đóng">✕</button>
+        <h3 id="mTitle">Món ăn</h3>
+        <!-- ✅ dòng credit chỉ hiển thị trong phần xem công thức -->
+        <div class="credit">@Nguyễn Phương Thảo</div>
+        <div class="row" id="mMeta"></div>
+        <h4>Nguyên liệu</h4>
+        <ul class="list" id="mIng"></ul>
+        <h4>Các bước thực hiện</h4>
+        <ol class="list steps" id="mSteps"></ol>
+      </div>
+    </div>
+  </dialog>
+
+  <script>
+    const themeBtn = document.getElementById('themeBtn');
+    let light=false;
+    themeBtn.onclick = () => {
+      light = !light;
+      if (light) {
+        document.documentElement.style.cssText = `
+          --bg:#f6f7f9; --panel:#ffffff; --text:#0b0d12; --muted:#4b5563;
+          --brand:#f97316; --brand-2:#fb923c; --ring:rgba(249,115,22,.35);
+          --surface:#f3f4f6; --surface-2:#eef2f7; --border:#e5e7eb;
+        `;
+        themeBtn.textContent = '☀️';
+      } else {
+        document.documentElement.style.cssText = '';
+        themeBtn.textContent = '🌙';
+      }
+    };
+
+    const DISHES=[
+      {id:'pho', name:'Phở Bò Hà Nội',cat:['noodle','soup'], time:45, diff:'Dễ', rating:4.9,
+        img:'https://cdn2.fptshop.com.vn/unsafe/1920x0/filters:format(webp):quality(75)/2024_1_26_638418715174070559_pho-bo-anh-dai-dien.jpg',
+        tags:['Bắc','nước trong','quế hồi'],
+        ing:['Bánh phở','Xương ống + nạm bò','Gừng, hành nướng','Quế, hồi, thảo quả','Muối, nước mắm, đường phèn','Hành lá, ngò gai'],
+        steps:[
+          'Trụng xương, hầm 3–4h lửa nhỏ; hớt bọt thường xuyên',
+          'Nướng gừng, hành; sao quế, hồi; cho túi thơm vào nồi',
+          'Nêm muối, nước mắm, đường phèn đến vị thanh',
+          'Trụng phở; thái thịt mỏng; chan nước dùng, rắc hành ngò'
+        ]
+      },
+      {id:'bunbo', name:'Bún Bò Huế',cat:['noodle','soup'], time:90, diff:'Trung bình', rating:4.8,
+        img:'https://daivietourist.vn/wp-content/uploads/2025/04/quan-bun-bo-hue-1.jpg',
+        tags:['Trung','mắm ruốc','sả ớt'],
+        ing:['Bắp bò, giò heo','Xương ống','Sả, gừng, hành tím','Mắm ruốc Huế','Sate ớt, dầu điều','Bún sợi to, rau sống'],
+        steps:[
+          'Trụng xương, hầm với sả 1.5–2h; vớt bọt',
+          'Luộc bắp bò chín tới, vớt ra ngâm lạnh rồi thái mỏng',
+          'Hoà mắm ruốc với nước ấm, lọc lấy phần trong cho vào nồi',
+          'Phi sate + màu điều thêm vào; nêm sau cùng cho tròn vị'
+        ]
+      },
+      {id:'banhmi', name:'Bánh Mì Thịt',cat:['street','quick'], time:20, diff:'Dễ', rating:4.7,
+        img:'https://upload.wikimedia.org/wikipedia/commons/0/0c/B%C3%A1nh_m%C3%AC_th%E1%BB%8Bt_n%C6%B0%E1%BB%9Bng.png',
+        tags:['Nam','vỏ giòn','đồ chua'],
+        ing:['Bánh mì vỏ giòn','Pate, mayonnaise','Thịt nguội/chả','Dưa leo, đồ chua','Ngò rí, ớt'],
+        steps:[
+          'Nướng nóng nhẹ ổ bánh để vỏ giòn',
+          'Phết pate + mayo; xếp thịt nguội, dưa leo, đồ chua',
+          'Rắc ngò và ớt; dùng ngay khi còn ấm'
+        ]
+      },
+      {id:'buncha', name:'Bún Chả',cat:['noodle','street'], time:60, diff:'Trung bình', rating:4.7,
+        img:'https://cdn2.fptshop.com.vn/unsafe/1920x0/filters:format(webp):quality(75)/2024_1_12_638406880045931692_cach-lam-bun-cha-ha-noi-0.jpg',
+        tags:['Bắc','nướng than','nước chấm'],
+        ing:['Bún tươi','Thịt ba chỉ, thịt băm','Tỏi ớt, nước mắm, đường, giấm','Đu đủ xanh, cà rốt ngâm','Rau sống'],
+        steps:[
+          'Ướp thịt băm + ba chỉ; nướng than thơm',
+          'Pha nước chấm chua ngọt; ngâm đu đủ cà rốt',
+          'Ăn kèm bún, rau và chả nướng'
+        ]
+      },
+      {id:'comtam', name:'Cơm Tấm Sườn Bì Chả',cat:['rice','street'], time:70, diff:'Trung bình', rating:4.6,
+        img:'https://file.hstatic.net/1000394081/article/com-tam_e03b4325c9914def9d66619930a73432.jpg',
+        tags:['Nam','mỡ hành','nước mắm'],
+        ing:['Gạo tấm','Sườn ướp ngũ vị','Bì, chả trứng','Mỡ hành','Dưa leo, đồ chua'],
+        steps:[
+          'Ướp sườn; nướng lửa vừa đến chín bóng',
+          'Nấu cơm tấm; làm mỡ hành',
+          'Pha nước mắm chua ngọt; dọn cùng bì chả'
+        ]
+      },
+      {id:'hutieu', name:'Hủ Tiếu Nam Vang',cat:['noodle','soup'], time:75, diff:'Trung bình', rating:4.6,
+        img:'https://cdn.tgdd.vn/2020/09/CookRecipe/Avatar/hu-tieu-mi-thumbnail.jpg',
+        tags:['Nam','ngọt xương','tỏi phi'],
+        ing:['Hủ tiếu khô/tươi','Xương heo','Tôm, thịt nạc, gan','Củ cải trắng','Tỏi phi, hành lá'],
+        steps:[
+          'Hầm xương với củ cải cho ngọt nước',
+          'Sơ chế topping: tôm, thịt, gan; trứng cút',
+          'Trụng sợi; chan nước trong; rắc tỏi phi'
+        ]
+      },
+      {id:'banhxeo', name:'Bánh Xèo',cat:['street','quick'], time:40, diff:'Dễ', rating:4.5,
+        img:'https://daylambanh.edu.vn/wp-content/uploads/2019/03/banh-xeo-bang-bot-pha-san-600x400.jpg',
+        tags:['Nam','giòn rụm','rau sống'],
+        ing:['Bột gạo, bột nghệ','Nước cốt dừa','Tôm, thịt ba chỉ','Giá, hành lá'],
+        steps:[
+          'Pha bột loãng; chảo nóng; đổ bột phủ mỏng',
+          'Thêm nhân; rưới ít dầu viền; chiên giòn rìa',
+          'Gập đôi; ăn với nước mắm chua ngọt'
+        ]
+      },
+      {id:'goicuon', name:'Gỏi Cuốn',cat:['roll','quick'], time:25, diff:'Dễ', rating:4.6,
+        img:'https://cdn.eva.vn/upload/3-2023/images/2023-07-03/3-cach-lam-goi-cuon-ngon-va-bi-quyet-pha-5-loai-tuong-cham-chuan-image11-1660893595-703-width780height488-1688369321-984-width780height488.jpg',
+        tags:['Nam','nhẹ','tốt cho sức khoẻ'],
+        ing:['Bánh tráng','Tôm, thịt luộc','Bún tươi','Rau thơm','Tương đậu phộng'],
+        steps:[
+          'Nhúng bánh tráng nhanh; xếp bún, rau, tôm thịt',
+          'Cuốn chặt; chấm tương đậu nấu'
+        ]
+      }
+    ];
+
+    const grid = document.getElementById('grid');
+    function cardTpl(d){
+      return `<article class="card" data-cat="${d.cat.join(' ')}" data-name="${d.name.toLowerCase()}">
+        <div class="thumb">
+          <img alt="${d.name}" src="${d.img}">
+          <span class="badge">⏱ ${d.time}′ • ${d.diff}</span>
+          <button class="favorite" data-id="${d.id}" aria-label="Yêu thích">
+            <span>❤</span><span>${d.rating.toFixed(1)}</span>
+          </button>
+        </div>
+        <div class="body">
+          <div class="title"><h3>${d.name}</h3><span class="muted">★ ${d.rating.toFixed(1)}</span></div>
+          <div class="meta">${d.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+          <div class="foot">
+            <button class="btn" onclick="openRecipe('${d.id}')">Xem công thức</button>
+            <button class="btn" onclick="share('${encodeURIComponent(d.name)}')">Chia sẻ</button>
+          </div>
+        </div>
+      </article>`;
+    }
+    function render(list){ grid.innerHTML = list.map(cardTpl).join(''); restoreFavs(); }
+    render(DISHES);
+
+    const search = document.getElementById('search');
+    search.addEventListener('input',applyFilters);
+    function clearSearch(){search.value=''; applyFilters();}
+    document.querySelectorAll('.chip').forEach(ch=>{
+      ch.addEventListener('click',()=>{
+        document.querySelectorAll('.chip').forEach(c=>c.dataset.active=false);
+        ch.dataset.active=true; applyFilters();
+      })
+    });
+    function applyFilters(){
+      const q = search.value.trim().toLowerCase();
+      const active = document.querySelector('.chip[data-active="true"]').dataset.filter;
+      const cards = [...grid.children];
+      cards.forEach(c=>{
+        const inCat = active==='all' || c.dataset.cat.includes(active);
+        const inText = !q || c.dataset.name.includes(q);
+        c.style.display = (inCat && inText) ? '' : 'none';
+      });
+    }
+
+    function restoreFavs(){
+      const favs = JSON.parse(localStorage.getItem('vncook:favs')||'[]');
+      document.querySelectorAll('.favorite').forEach(btn=>{
+        const on = favs.includes(btn.dataset.id); btn.dataset.on = on;
+        btn.onclick = ()=>{
+          const id = btn.dataset.id; const arr = new Set(JSON.parse(localStorage.getItem('vncook:favs')||'[]'));
+          if(arr.has(id)) arr.delete(id); else arr.add(id);
+          localStorage.setItem('vncook:favs', JSON.stringify([...arr]));
+          btn.dataset.on = arr.has(id);
+        };
+      });
+    }
+
+    const modal=document.getElementById('modal');
+    const mImg=document.getElementById('mImg');
+    const mTitle=document.getElementById('mTitle');
+    const mMeta=document.getElementById('mMeta');
+    const mIng=document.getElementById('mIng');
+    const mSteps=document.getElementById('mSteps');
+
+    function openRecipe(id){
+      const d = DISHES.find(x=>x.id===id); if(!d) return;
+      mImg.src=d.img; mImg.alt=d.name; mTitle.textContent=d.name;
+      mMeta.innerHTML = `<span class='chip'>⏱ ${d.time}′</span><span class='chip'>${d.diff}</span><span class='chip'>★ ${d.rating.toFixed(1)}</span>`;
+      mIng.innerHTML = d.ing.map(x=>`<li>${x}</li>`).join('');
+      mSteps.innerHTML = d.steps.map(s=>`<li>${s}</li>`).join('');
+      modal.setAttribute('open','');
+    }
+    function closeModal(){ modal.removeAttribute('open'); }
+    modal.addEventListener('click',e=>{ if(e.target===modal) closeModal(); });
+
+    function share(name){
+      const title=decodeURIComponent(name);
+      if(navigator.share){navigator.share({title, text:`Cùng nấu món ${title} nhé!`}).catch(()=>{});}
+      else { alert(`Hãy chia sẻ món: ${title}`); }
+    }
+
+    function subscribe(){
+      const v=document.getElementById('email').value.trim();
+      const msg=document.getElementById('subMsg');
+      if(!v||!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)){msg.textContent='Vui lòng nhập email hợp lệ.'; msg.style.color='var(--err)';return;}
+      localStorage.setItem('vncook:email',v); msg.textContent='Đăng ký thành công! Hẹn gặp bạn trong bản tin tuần.'; msg.style.color='var(--ok)';
+    }
+    function suggest(){
+      const v=document.getElementById('ing').value.toLowerCase();
+      const msg=document.getElementById('aiMsg');
+      if(!v){msg.textContent='Hãy nhập vài nguyên liệu bạn đang có nhé!'; msg.style.color='var(--warn)'; return;}
+      const hits=DISHES.filter(d=>d.name.toLowerCase().includes('bún')||d.cat.includes('noodle'));
+      msg.textContent = `Gợi ý: ${hits.slice(0,3).map(x=>x.name).join(' • ')} (dựa trên từ khoá "${v}")`;
+      msg.style.color='var(--muted)';
+    }
+  </script>
+</body>
+</html>
